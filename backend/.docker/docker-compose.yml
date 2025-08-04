@@ -1,0 +1,21 @@
+services:
+  # ========== LOCAL REDIS INSTANCE ==========
+  # URL: redis://localhost:6379
+  redis:
+    container_name: redis
+    build: ./redis
+    ports:
+      - '6379:6379'
+
+  # ========== REDIS INSIGHT UI ==========
+  # URL: http://localhost:8100
+  redis-insight:
+    container_name: redis-insight
+    build: ./redis-insight
+    ports:
+      - '8100:5540'
+    depends_on:
+      - redis
+    environment:
+      - RI_REDIS_HOST=redis
+      - RI_REDIS_PORT=6379

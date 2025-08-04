@@ -1,0 +1,1 @@
+FROM redis/redisinsight:2.7.0@sha256:b7aa18e73329ebb2e3d9e949b8d35193bf5415ef35c16fd9a50e6f832922b296
