@@ -48,3 +48,51 @@ class UnauthorizedError(BaseAPIException):
         super().__init__(
             message=message, status_code=401, error_code="UNAUTHORIZED", details=details
         )
+
+
+class AuthenticationError(BaseAPIException):
+    def __init__(self, message: str, details: Optional[Dict[str, Any]] = None):
+        super().__init__(
+            message=message,
+            status_code=401,
+            error_code="AUTHENTICATION_ERROR",
+            details=details,
+        )
+
+
+class InvalidCredentialsError(BaseAPIException):
+    def __init__(
+        self,
+        message: str = "Invalid credentials",
+        details: Optional[Dict[str, Any]] = None,
+    ):
+        super().__init__(
+            message=message,
+            status_code=401,
+            error_code="INVALID_CREDENTIALS",
+            details=details,
+        )
+
+
+class TokenExpiredError(BaseAPIException):
+    def __init__(
+        self,
+        message: str = "Token has expired",
+        details: Optional[Dict[str, Any]] = None,
+    ):
+        super().__init__(
+            message=message,
+            status_code=401,
+            error_code="TOKEN_EXPIRED",
+            details=details,
+        )
+
+
+class ForbiddenError(BaseAPIException):
+    def __init__(self, message: str, details: Optional[Dict[str, Any]] = None):
+        super().__init__(
+            message=message,
+            status_code=403,
+            error_code="FORBIDDEN",
+            details=details,
+        )

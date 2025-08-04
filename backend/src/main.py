@@ -1,11 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-
 from src.common.config import settings
 from src.common.logger import logger, setup_logging
 from src.common.utils.exception_handlers import register_exception_handlers
 from src.common.utils.response import Response, Status
-from src.common.utils.routes_logger import log_routes
+from src.common.utils.routes import log_registered_routes, register_routers
 
 
 def create_app() -> FastAPI:
@@ -33,7 +32,8 @@ def create_app() -> FastAPI:
     )
 
     register_exception_handlers(app)
-    log_routes(app)
+    register_routers(app)
+    log_registered_routes()
 
     return app
 
