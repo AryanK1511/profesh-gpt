@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -10,8 +10,6 @@ class AuthenticateResponse(BaseModel):
 
 class UserProfile(BaseModel):
     user_id: str = Field(..., description="User ID")
-    email: Optional[str] = Field(None, description="User email")
-    permissions: List[str] = Field(default_factory=list, description="User permissions")
 
 
 class TokenRequest(BaseModel):

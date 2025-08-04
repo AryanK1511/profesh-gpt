@@ -108,8 +108,6 @@ class TokenVerifier:
 
             return {
                 "user_id": payload.get("sub"),
-                "email": payload.get("email"),
-                "permissions": payload.get("permissions", []),
                 "exp": payload.get("exp"),
                 "iat": payload.get("iat"),
             }
