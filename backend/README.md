@@ -23,3 +23,7 @@ celery -A src.workers.main.celery_app worker --loglevel=info
 ```bash
 celery -A src.workers.main.celery_app flower --port=8300
 ```
+
+```bash
+celery -A src.workers.main:celery_app purge
+```

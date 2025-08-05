@@ -13,6 +13,9 @@ class Settings(BaseSettings):
     # ========== REDIS ==========
     REDIS_URL: str
 
+    # ========== OPENAI ==========
+    OPENAI_API_KEY: str
+
     # ========== WORKOS ==========
     WORKOS_API_KEY: str
     WORKOS_CLIENT_ID: str

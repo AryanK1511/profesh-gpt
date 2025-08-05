@@ -5,6 +5,7 @@ from src.common.logger import logger, setup_logging
 from src.common.utils.exception_handlers import register_exception_handlers
 from src.common.utils.response import Response, Status
 from src.common.utils.routes import log_registered_routes, register_routers
+from src.modules.agent.core.ai_agent import AIAgent
 
 
 def create_app() -> FastAPI:
@@ -46,4 +47,6 @@ app: FastAPI = create_app()
 @app.get("/health")
 def health_check():
     logger.info("Server is Healthy")
+    ai_agent = AIAgent()
+    ai_agent.run_sync("Hello")
     return Response.success(message="Server is Healthy", status_code=Status.OK)
