@@ -19,3 +19,14 @@ services:
     environment:
       - RI_REDIS_HOST=redis
       - RI_REDIS_PORT=6379
+
+  # ========== QDRANT ==========
+  # URL: http://localhost:8300/dashboard
+  qdrant:
+    container_name: qdrant
+    build: ./qdrant
+    ports:
+      - '8300:6333' # REST API
+      - '8301:6334' # gRPC API
+    depends_on:
+      - redis
