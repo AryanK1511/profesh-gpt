@@ -17,7 +17,7 @@ class AgentStatusRepository:
         try:
             channel = self._get_channel_name(run_id)
             message = event.model_dump_json()
-            await self.redis_manager.publish(channel, message)
+            await self.redis_client.publish(channel, message)
             logger.debug(f"Published event {event.event_type} to channel {channel}")
             return True
         except Exception as e:
@@ -27,7 +27,7 @@ class AgentStatusRepository:
     async def subscribe_to_channel(self, run_id: str):
         try:
             channel = self._get_channel_name(run_id)
-            pubsub = await self.redis_manager.subscribe(channel)
+            pubsub = await self.redis_client.subscribe(channel)
             logger.info(f"Subscribed to channel: {channel}")
             return pubsub
         except Exception as e:
@@ -37,14 +37,14 @@ class AgentStatusRepository:
     async def unsubscribe_from_channel(self, run_id: str):
         try:
             channel = self._get_channel_name(run_id)
-            await self.redis_manager.unsubscribe(channel)
+            await self.redis_client.unsubscribe(channel)
             logger.info(f"Unsubscribed from channel: {channel}")
         except Exception as e:
             logger.error(f"Failed to unsubscribe from channel: {e}")
 
     async def get_message(self, timeout: float = 1.0) -> Optional[dict]:
         try:
-            message = await self.redis_manager.get_message(timeout=timeout)
+            message = await self.redis_client.get_message(timeout=timeout)
             if message and message.get("type") == "message":
                 return json.loads(message.get("data", "{}"))
             return None

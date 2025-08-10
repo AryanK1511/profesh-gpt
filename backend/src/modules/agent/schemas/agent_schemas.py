@@ -19,6 +19,10 @@ class EventType(str, Enum):
     LLM_OUTPUT = "llm_output"
     AGENT_COMPLETE = "agent_complete"
     AGENT_ERROR = "agent_error"
+    AGENT_PROCESSING_START = "agent_processing_start"
+    AGENT_PROCESSING_PROGRESS = "agent_processing_progress"
+    AGENT_PROCESSING_COMPLETE = "agent_processing_complete"
+    AGENT_PROCESSING_ERROR = "agent_processing_error"
 
 
 class AgentEvent(BaseModel):
@@ -58,6 +62,32 @@ class AgentErrorEvent(AgentEvent):
     error_type: str
 
 
+class AgentProcessingStartEvent(AgentEvent):
+    event_type: EventType = EventType.AGENT_PROCESSING_START
+    agent_id: str
+    task_id: str
+
+
+class AgentProcessingProgressEvent(AgentEvent):
+    event_type: EventType = EventType.AGENT_PROCESSING_PROGRESS
+    agent_id: str
+    progress: str
+    status: AgentStatus
+
+
+class AgentProcessingCompleteEvent(AgentEvent):
+    event_type: EventType = EventType.AGENT_PROCESSING_COMPLETE
+    agent_id: str
+    status: AgentStatus
+
+
+class AgentProcessingErrorEvent(AgentEvent):
+    event_type: EventType = EventType.AGENT_PROCESSING_ERROR
+    agent_id: str
+    error_message: str
+    status: AgentStatus
+
+
 class AgentRunRequest(BaseModel):
     input_text: str = "Hello"
 
@@ -85,6 +115,7 @@ class AgentResponse(BaseModel):
     custom_instructions: Optional[str] = None
     curr_resume_id: Optional[UUID] = None
     status: AgentStatus
+    task_id: Optional[str] = None
     created_at: datetime
     updated_at: datetime
 

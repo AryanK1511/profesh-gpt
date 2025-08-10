@@ -16,6 +16,7 @@ from src.modules.agent.services.agent_crud_service import AgentCRUDService
 from src.modules.auth.dependencies.auth_dependencies import get_current_user
 from src.modules.auth.schemas.auth_schemas import CurrentUser
 from src.modules.resume.repositories.resume_repository import ResumeRepository
+from src.workers.tasks.agent_tasks import process_agent_creation_task
 
 router = APIRouter(prefix="/agent", tags=["agent"])
 
@@ -27,17 +28,28 @@ async def create_agent(
     current_user: CurrentUser = Depends(get_current_user),
 ):
     try:
+        logger.info(f"Creating agent for user: {current_user.user_id}")
+
         repository = AgentRepository(db)
         resume_repository = ResumeRepository(db)
         service = AgentCRUDService(repository, resume_repository)
-        logger.info(f"Current user: {current_user}")
-        agent = service.create_agent(request, current_user.user_id)
 
-        response_data = AgentCreateResponse(agent=agent)
+        validation_result = service.validate_agent_creation(
+            request, current_user.user_id
+        )
+        if not validation_result["is_valid"]:
+            return Response.error(
+                message=validation_result["error"],
+                status_code=validation_result["status_code"],
+            )
+
+        task = process_agent_creation_task.delay(
+            request.model_dump(mode="json"), str(current_user.user_id)
+        )
 
         return Response.success(
-            data=response_data.model_dump(mode="json"),
-            status_code=Status.CREATED,
+            data={"task_id": task.id, "message": "Agent creation started"},
+            status_code=Status.ACCEPTED,
         )
 
     except ValidationError as e:
@@ -45,13 +57,6 @@ async def create_agent(
         return Response.error(
             message=str(e),
             status_code=Status.BAD_REQUEST,
-        )
-
-    except DatabaseError as e:
-        logger.error(f"Database error creating agent: {e}")
-        return Response.error(
-            message=str(e),
-            status_code=Status.INTERNAL_SERVER_ERROR,
         )
 
     except Exception as e:
