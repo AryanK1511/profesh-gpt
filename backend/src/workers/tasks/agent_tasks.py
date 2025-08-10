@@ -1,7 +1,7 @@
 import asyncio
 
 from src.common.logger import logger
-from src.database.redis import RedisManager
+from src.database.redis import redis_client
 from src.modules.agent.core.ai_agent import AIAgent
 from src.modules.agent.respositories.agent_status_repository import (
     AgentStatusRepository,
@@ -17,7 +17,7 @@ def run_agent_task(input_text: str):
         logger.info(f"Starting agent task for run_id: {run_id}")
 
         ai_agent = AIAgent()
-        repository = AgentStatusRepository(redis_manager=RedisManager())
+        repository = AgentStatusRepository(redis_client=redis_client)
         service = AgentService(ai_agent=ai_agent, repository=repository)
 
         asyncio.run(

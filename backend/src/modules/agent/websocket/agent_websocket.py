@@ -3,7 +3,7 @@ from typing import Dict
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from src.common.logger import logger
-from src.database.redis import RedisManager
+from src.database.redis import redis_client
 from src.modules.agent.respositories.agent_status_repository import (
     AgentStatusRepository,
 )
@@ -18,7 +18,7 @@ async def websocket_endpoint(websocket: WebSocket, run_id: str):
     await websocket.accept()
     active_connections[run_id] = websocket
 
-    repository = AgentStatusRepository(redis_manager=RedisManager())
+    repository = AgentStatusRepository(redis_client=redis_client)
 
     try:
         logger.info(f"WebSocket connected for run_id: {run_id}")

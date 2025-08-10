@@ -2,13 +2,13 @@ import json
 from typing import Optional
 
 from src.common.logger import logger
-from src.database.redis import RedisManager
+from src.database.redis import RedisClient
 from src.modules.agent.schemas.agent_schemas import AgentEvent
 
 
 class AgentStatusRepository:
-    def __init__(self, redis_manager: RedisManager):
-        self.redis_manager = redis_manager
+    def __init__(self, redis_client: RedisClient):
+        self.redis_client = redis_client
 
     def _get_channel_name(self, run_id: str) -> str:
         return f"agent_progress:{run_id}"

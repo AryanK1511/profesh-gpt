@@ -3,7 +3,7 @@ from src.common.config import settings
 from src.common.logger import logger
 
 
-class RedisManager:
+class RedisClient:
     def __init__(self):
         self.redis_client: redis.Redis = None
         self.pubsub: redis.client.PubSub = None
@@ -50,4 +50,4 @@ class RedisManager:
         return None
 
 
-redis_manager = RedisManager()
+redis_client = RedisClient()
