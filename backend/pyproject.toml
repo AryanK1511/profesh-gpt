@@ -19,4 +19,6 @@ dependencies = [
     "workos>=5.26.1",
     "sqlmodel>=0.0.24",
     "psycopg2>=2.9.10",
+    "supabase>=2.0.0",
+    "aiofiles>=23.0.0",
 ]

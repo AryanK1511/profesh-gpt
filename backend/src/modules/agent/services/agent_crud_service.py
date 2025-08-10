@@ -32,7 +32,7 @@ class AgentCRUDService:
                 "custom_instructions": request.custom_instructions.strip()
                 if request.custom_instructions
                 else None,
-                "current_resume_id": None,
+                "curr_resume_id": None,
             }
 
             agent = self.repository.create_agent(agent_data)

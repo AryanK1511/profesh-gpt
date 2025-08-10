@@ -14,6 +14,9 @@ class Agent(SQLModel, table=True):
     name: str
     description: Optional[str] = None
     custom_instructions: Optional[str] = None
+    curr_resume_id: Optional[uuid.UUID] = Field(
+        default=None, foreign_key="resumes.resume_id"
+    )
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc),
         sa_column_kwargs={"server_default": text("CURRENT_TIMESTAMP")},

@@ -11,7 +11,6 @@ class Resume(SQLModel, table=True):
 
     resume_id: Optional[uuid.UUID] = Field(default_factory=uuid.uuid4, primary_key=True)
     user_id: str = Field(index=True)
-    agent_id: Optional[uuid.UUID] = Field(default=None, foreign_key="agents.agent_id")
     filename: str
     filepath: str
     created_at: datetime = Field(

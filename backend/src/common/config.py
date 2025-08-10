@@ -19,6 +19,13 @@ class Settings(BaseSettings):
     # ========== OPENAI ==========
     OPENAI_API_KEY: str
 
+    # ========== STORAGE BUCKET ==========
+    SUPABASE_STORAGE_BUCKET_NAME: str = "documents"
+
+    # ========== SUPABASE CONFIG ==========
+    SUPABASE_URL: str
+    SUPABASE_ANON_KEY: str
+
     # ========== WORKOS ==========
     WORKOS_API_KEY: str
     WORKOS_CLIENT_ID: str

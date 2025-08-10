@@ -74,7 +74,7 @@ class AgentResponse(BaseModel):
     name: str
     description: Optional[str] = None
     custom_instructions: Optional[str] = None
-    current_resume_id: Optional[UUID] = None
+    curr_resume_id: Optional[UUID] = None
     created_at: datetime
     updated_at: datetime
 
