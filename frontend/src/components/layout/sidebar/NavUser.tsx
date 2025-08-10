@@ -1,12 +1,6 @@
 'use client';
 
-import {
-  CreditCard,
-  MoreVertical,
-  LogOut,
-  Bell,
-  UserCircle,
-} from 'lucide-react';
+import { Bell, CreditCard, LogOut, MoreVertical, UserCircle } from 'lucide-react';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
