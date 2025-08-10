@@ -6,6 +6,13 @@ from uuid import UUID
 from pydantic import BaseModel, Field
 
 
+class AgentStatus(str, Enum):
+    QUEUED = "queued"
+    IN_PROGRESS = "in_progress"
+    COMPLETED = "completed"
+    FAILED = "failed"
+
+
 class EventType(str, Enum):
     TOOL_CALL = "tool_call"
     TOOL_OUTPUT = "tool_output"
@@ -77,6 +84,7 @@ class AgentResponse(BaseModel):
     description: Optional[str] = None
     custom_instructions: Optional[str] = None
     curr_resume_id: Optional[UUID] = None
+    status: AgentStatus
     created_at: datetime
     updated_at: datetime
 

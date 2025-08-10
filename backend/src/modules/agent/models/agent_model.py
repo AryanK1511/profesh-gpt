@@ -5,6 +5,8 @@ from typing import Optional
 from sqlalchemy import text
 from sqlmodel import Field, SQLModel
 
+from ..schemas.agent_schemas import AgentStatus
+
 
 class Agent(SQLModel, table=True):
     __tablename__ = "agents"
@@ -14,6 +16,7 @@ class Agent(SQLModel, table=True):
     name: str
     description: Optional[str] = None
     custom_instructions: Optional[str] = None
+    status: AgentStatus = Field(default=AgentStatus.QUEUED, index=True)
     curr_resume_id: Optional[uuid.UUID] = Field(
         default=None, foreign_key="resumes.resume_id"
     )
