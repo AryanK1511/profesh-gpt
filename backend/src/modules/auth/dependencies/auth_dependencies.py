@@ -9,6 +9,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from src.common.config import settings
+from src.modules.auth.schemas.auth_schemas import CurrentUser
 
 
 class JWKSClient:
@@ -124,5 +125,6 @@ token_verifier = TokenVerifier()
 
 def get_current_user(
     token: str = Depends(token_verifier.oauth2_scheme),
-) -> Dict[str, Any]:
-    return token_verifier.verify_token(token)
+) -> CurrentUser:
+    user_data = token_verifier.verify_token(token)
+    return CurrentUser(**user_data)

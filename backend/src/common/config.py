@@ -13,6 +13,9 @@ class Settings(BaseSettings):
     # ========== REDIS ==========
     REDIS_URL: str
 
+    # ========== DATABASE ==========
+    DATABASE_URL: str
+
     # ========== OPENAI ==========
     OPENAI_API_KEY: str
 

@@ -15,5 +15,8 @@ dependencies = [
     "python-jose>=3.5.0",
     "redis>=6.2.0",
     "requests>=2.32.4",
+    "alembic>=1.13.0",
     "workos>=5.26.1",
+    "sqlmodel>=0.0.24",
+    "psycopg2>=2.9.10",
 ]

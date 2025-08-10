@@ -2,7 +2,7 @@ import json
 from typing import Optional
 
 from src.common.logger import logger
-from src.database.redis import RedisClient
+from src.database.redis.redis_client import RedisClient
 from src.modules.agent.schemas.agent_schemas import AgentEvent
 
 

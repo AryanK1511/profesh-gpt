@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from src.common.config import settings
@@ -5,7 +7,17 @@ from src.common.logger import logger, setup_logging
 from src.common.utils.exception_handlers import register_exception_handlers
 from src.common.utils.response import Response, Status
 from src.common.utils.routes import log_registered_routes, register_routers
-from src.modules.agent.core.ai_agent import AIAgent
+from src.database.postgres.postgres_client import postgres_client
+from src.modules.agent.models.agent_model import Agent  # noqa
+from src.modules.resume.models.resume_model import Resume  # noqa
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await postgres_client.init_db()
+    logger.info("Database initialized successfully")
+    yield
+    logger.info("Application shutting down")
 
 
 def create_app() -> FastAPI:
@@ -20,6 +32,7 @@ def create_app() -> FastAPI:
         summary="Lorem Ipsum API",
         description="Lorem Ipsum API",
         version="0.1.0",
+        lifespan=lifespan,
     )
 
     setup_logging()
@@ -47,6 +60,4 @@ app: FastAPI = create_app()
 @app.get("/health")
 def health_check():
     logger.info("Server is Healthy")
-    ai_agent = AIAgent()
-    ai_agent.run_sync("Hello")
     return Response.success(message="Server is Healthy", status_code=Status.OK)

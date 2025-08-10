@@ -1,7 +1,7 @@
 import asyncio
 
 from src.common.logger import logger
-from src.database.redis import redis_client
+from src.database.redis.redis_client import redis_client
 from src.modules.agent.core.ai_agent import AIAgent
 from src.modules.agent.respositories.agent_status_repository import (
     AgentStatusRepository,

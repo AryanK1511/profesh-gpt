@@ -16,7 +16,7 @@ async def get_token():
 
         return Response.success(
             message="Token generated successfully",
-            data=token_data.model_dump(),
+            data=token_data.model_dump(mode='json'),
             status_code=Status.OK,
         )
 

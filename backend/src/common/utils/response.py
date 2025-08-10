@@ -23,7 +23,9 @@ class Response:
         status_code: int = status.HTTP_200_OK,
     ) -> JSONResponse:
         response = StandardResponse(status=True, message=message, data=data)
-        return JSONResponse(status_code=status_code, content=response.model_dump())
+        return JSONResponse(
+            status_code=status_code, content=response.model_dump(mode="json")
+        )
 
     @staticmethod
     def error(
@@ -32,7 +34,9 @@ class Response:
         status_code: int = status.HTTP_400_BAD_REQUEST,
     ) -> JSONResponse:
         response = StandardResponse(status=False, message=message, data=data)
-        return JSONResponse(status_code=status_code, content=response.model_dump())
+        return JSONResponse(
+            status_code=status_code, content=response.model_dump(mode="json")
+        )
 
 
 class Status:

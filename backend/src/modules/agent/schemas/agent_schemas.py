@@ -1,6 +1,7 @@
 from datetime import datetime
 from enum import Enum
 from typing import Any, Dict, Optional
+from uuid import UUID
 
 from pydantic import BaseModel, Field
 
@@ -58,3 +59,29 @@ class AgentRunResponse(BaseModel):
     run_id: str
     status: str
     message: Optional[str] = None
+
+
+class AgentCreateRequest(BaseModel):
+    name: str = Field(..., min_length=1, max_length=255)
+    description: Optional[str] = Field(None, max_length=1000)
+    custom_instructions: Optional[str] = Field(None)
+    resume: Optional[str] = Field(None)
+
+
+class AgentResponse(BaseModel):
+    agent_id: UUID
+    user_id: str
+    name: str
+    description: Optional[str] = None
+    custom_instructions: Optional[str] = None
+    current_resume_id: Optional[UUID] = None
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class AgentCreateResponse(BaseModel):
+    agent: AgentResponse
+    message: str = "Agent created successfully"
