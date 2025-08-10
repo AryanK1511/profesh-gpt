@@ -8,6 +8,7 @@ from src.common.utils.exception_handlers import register_exception_handlers
 from src.common.utils.response import Response, Status
 from src.common.utils.routes import log_registered_routes, register_routers
 from src.database.postgres.postgres_client import postgres_client
+from src.database.qdrant.qdrant_client import qdrant_client  # noqa
 from src.modules.agent.models.agent_model import Agent  # noqa
 from src.modules.resume.models.resume_model import Resume  # noqa
 

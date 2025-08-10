@@ -26,6 +26,10 @@ class Settings(BaseSettings):
     SUPABASE_URL: str
     SUPABASE_ANON_KEY: str
 
+    # ========== QDRANT ==========
+    QDRANT_URL: str
+    QDRANT_API_KEY: str = None
+
     # ========== WORKOS ==========
     WORKOS_API_KEY: str
     WORKOS_CLIENT_ID: str
