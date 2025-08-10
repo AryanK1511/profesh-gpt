@@ -4,7 +4,7 @@ from typing import Dict
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from src.common.logger import logger
 from src.database.redis.redis_client import redis_client
-from src.modules.agent.respositories.agent_status_repository import (
+from src.modules.agent.repositories.agent_status_repository import (
     AgentStatusRepository,
 )
 

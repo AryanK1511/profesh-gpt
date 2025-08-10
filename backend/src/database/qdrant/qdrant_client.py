@@ -1,3 +1,5 @@
+from langchain_openai import OpenAIEmbeddings
+from langchain_qdrant import Qdrant
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams
 from src.common.config import settings
@@ -11,11 +13,19 @@ class QdrantDBClient:
                 self.client = QdrantClient(
                     url=settings.QDRANT_URL,
                     api_key=settings.QDRANT_API_KEY,
+                    check_compatibility=False,
                 )
             elif settings.PYTHON_ENV.lower() == "dev":
-                self.client = QdrantClient(url=settings.QDRANT_URL)
+                self.client = QdrantClient(
+                    url=settings.QDRANT_URL,
+                    check_compatibility=False,
+                )
 
-            # Automatically create resume collection if it doesn't exist
+            self.embeddings = OpenAIEmbeddings(
+                model="text-embedding-3-small",
+                api_key=settings.OPENAI_API_KEY,
+            )
+
             self.create_resume_collection_if_not_exists()
 
         except Exception as e:
@@ -45,6 +55,17 @@ class QdrantDBClient:
 
         except Exception as e:
             logger.error(f"Failed to create resume collection: {e}")
+            raise
+
+    def get_langchain_qdrant(self, collection_name: str = "resumes") -> Qdrant:
+        try:
+            return Qdrant(
+                client=self.client,
+                collection_name=collection_name,
+                embeddings=self.embeddings,
+            )
+        except Exception as e:
+            logger.error(f"Failed to create LangChain Qdrant instance: {e}")
             raise
 
 

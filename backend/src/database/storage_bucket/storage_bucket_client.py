@@ -32,14 +32,21 @@ class StorageBucketClient:
                 file_options={"content-type": content_type},
             )
 
-            public_url = self.supabase.storage.from_(self.bucket_name).get_public_url(
-                storage_path
-            )
-
             logger.info(f"Uploaded bytes to path: {storage_path}")
-            return public_url
+            return storage_path
         except Exception as e:
             logger.error(f"Failed to upload bytes to path {storage_path}: {e}")
+            raise
+
+    async def download_bytes_from_path(self, storage_path: str) -> bytes:
+        try:
+            response = self.supabase.storage.from_(self.bucket_name).download(
+                storage_path
+            )
+            logger.info(f"Downloaded bytes from path: {storage_path}")
+            return response
+        except Exception as e:
+            logger.error(f"Failed to download bytes from path {storage_path}: {e}")
             raise
 
     async def delete_pdf(self, file_path: str) -> bool:

@@ -5,7 +5,7 @@ from typing import AsyncGenerator
 from agents import ItemHelpers, Runner
 from src.common.logger import logger
 from src.modules.agent.core.ai_agent import AIAgent
-from src.modules.agent.respositories.agent_status_repository import (
+from src.modules.agent.repositories.agent_status_repository import (
     AgentStatusRepository,
 )
 from src.modules.agent.schemas.agent_schemas import (

@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, File, Form, UploadFile
+from fastapi import APIRouter, Depends, File, Form, Query, UploadFile
 from sqlmodel import Session
 from src.common.logger import logger
 from src.common.utils.exceptions import DatabaseError, ValidationError
@@ -22,6 +22,7 @@ router = APIRouter(prefix="/resume", tags=["resume"])
 async def upload_resume(
     file: UploadFile = File(...),
     fileName: str = Form(...),
+    agent_id: str = Query(None, description="Optional agent ID for embedding metadata"),
     db: Session = Depends(postgres_client.get_db),
     current_user: CurrentUser = Depends(get_current_user),
 ):
@@ -36,6 +37,7 @@ async def upload_resume(
             user_id=current_user.user_id,
             file_name=f"{fileName}.pdf",
             file_bytes=file_bytes,
+            agent_id=agent_id,
         )
 
         return Response.success(
@@ -60,6 +62,7 @@ async def update_resume(
     resume_id: UUID,
     file: UploadFile = File(...),
     fileName: str = Form(...),
+    agent_id: str = Query(None, description="Optional agent ID for embedding metadata"),
     db: Session = Depends(postgres_client.get_db),
     current_user: CurrentUser = Depends(get_current_user),
 ):
@@ -75,6 +78,7 @@ async def update_resume(
             resume_id=resume_id,
             new_file_name=f"{fileName}.pdf",
             new_file_bytes=file_bytes,
+            agent_id=agent_id,
         )
 
         if not result:
@@ -109,7 +113,7 @@ async def delete_resume(
         repository = ResumeRepository(db)
         service = ResumeService(repository)
         deleted = await service.delete_resume(
-            user_id=current_user.user_id, resume_id=resume_id
+            resume_id=resume_id, user_id=current_user.user_id
         )
 
         if not deleted:

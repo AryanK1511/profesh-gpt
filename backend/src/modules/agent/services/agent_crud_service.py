@@ -3,7 +3,7 @@ from uuid import UUID
 
 from src.common.logger import logger
 from src.common.utils.exceptions import DatabaseError, ValidationError
-from src.modules.agent.respositories.agent_repository import AgentRepository
+from src.modules.agent.repositories.agent_repository import AgentRepository
 from src.modules.agent.schemas.agent_schemas import AgentCreateRequest, AgentResponse
 
 
