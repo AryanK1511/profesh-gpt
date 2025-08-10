@@ -1,1 +1,1 @@
-PROJECT_NAME = "lorem-ipsum-api"
+PROJECT_NAME = "profesh-gpt-backend"

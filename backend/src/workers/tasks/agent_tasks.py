@@ -61,7 +61,6 @@ def process_agent_creation_task(
         asyncio.run(
             _process_agent_creation(
                 agent_id=str(agent.agent_id),
-                resume_id=str(agent.curr_resume_id),
                 task_id=task_id,
                 service=service,
                 status_repository=status_repository,
@@ -113,7 +112,6 @@ def _handle_creation_failure(agent_id: UUID, task_id: str, error_message: str) -
 
 async def _process_agent_creation(
     agent_id: str,
-    resume_id: str,
     task_id: str,
     service,
     status_repository,

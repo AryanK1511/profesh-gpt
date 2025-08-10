@@ -7,7 +7,7 @@ def create_celery_app():
     setup_logging()
 
     celery_app = Celery(
-        "lorem-ipsum-api",
+        settings.PROJECT_NAME + "-celery-workers",
         broker=settings.REDIS_URL,
         include=["src.workers.tasks.agent_tasks"],
     )
