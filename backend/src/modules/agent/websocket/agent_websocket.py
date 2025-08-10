@@ -78,7 +78,7 @@ async def agent_processing_websocket(
 
     try:
         logger.info(f"Agent processing WebSocket connected for task_id: {task_id}")
-        await repository.subscribe_to_channel(task_id)
+        await repository.subscribe_to_channel(task_id, "agent_processing")
 
         await websocket.send_text(
             json.dumps(
@@ -126,7 +126,7 @@ async def agent_processing_websocket(
     finally:
         if task_id in active_connections:
             del active_connections[task_id]
-        await repository.unsubscribe_from_channel(task_id)
+        await repository.unsubscribe_from_channel(task_id, "agent_processing")
         logger.info(
             f"Cleaned up agent processing WebSocket connection for task_id: {task_id}"
         )

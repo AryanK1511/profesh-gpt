@@ -71,7 +71,6 @@ class AgentProcessingStartEvent(AgentEvent):
 class AgentProcessingProgressEvent(AgentEvent):
     event_type: EventType = EventType.AGENT_PROCESSING_PROGRESS
     agent_id: str
-    progress: str
     status: AgentStatus
 
 

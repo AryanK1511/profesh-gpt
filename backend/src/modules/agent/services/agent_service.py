@@ -108,7 +108,7 @@ class AgentService:
             async for event in self.run_agent(run_id=run_id, input_text=input_text):
                 logger.info(f"Agent event: {event}")
                 success = await self.repository.publish_event(
-                    run_id=run_id, event=event
+                    run_id=run_id, event=event, channel_type="agent_progress"
                 )
 
                 if not success:
@@ -126,8 +126,8 @@ class AgentService:
                 error_type=type(e).__name__,
                 message="Agent run failed",
             )
-            await self.repository.publish_event(run_id, error_event)
+            await self.repository.publish_event(run_id, error_event, "agent_progress")
             raise
 
         finally:
-            await self.repository.cleanup_channel(run_id)
+            await self.repository.cleanup_channel(run_id, "agent_progress")
