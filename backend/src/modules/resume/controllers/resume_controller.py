@@ -2,40 +2,34 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, File, Form, Query, UploadFile
 from fastapi.responses import Response
-from sqlmodel import Session
 from src.common.logger import logger
 from src.common.utils.exceptions import DatabaseError, ValidationError
 from src.common.utils.response import Response as ApiResponse
 from src.common.utils.response import Status
-from src.database.postgres.postgres_client import postgres_client
 from src.modules.auth.dependencies.auth_dependencies import get_current_user
 from src.modules.auth.schemas.auth_schemas import CurrentUser
-from src.modules.resume.repositories.resume_repository import ResumeRepository
+from src.modules.resume.dependencies.resume_dependencies import ResumeServiceDep
 from src.modules.resume.schemas.resume_schema import (
     ResumeCreateResponse,
 )
-from src.modules.resume.services.resume_service import ResumeService
 
 router = APIRouter(prefix="/resume", tags=["resume"])
 
 
 @router.post("/", response_model=ResumeCreateResponse)
 async def upload_resume(
+    resume_service: ResumeServiceDep,
+    current_user: CurrentUser = Depends(get_current_user),
     file: UploadFile = File(...),
     fileName: str = Form(...),
     agent_id: str = Query(None, description="Optional agent ID for embedding metadata"),
-    db: Session = Depends(postgres_client.get_db),
-    current_user: CurrentUser = Depends(get_current_user),
 ):
     try:
         if file.content_type != "application/pdf":
             raise ValidationError("Only PDF files are allowed")
 
-        repository = ResumeRepository(db)
-        service = ResumeService(repository)
-
         file_bytes = await file.read()
-        result = await service.upload_resume(
+        result = await resume_service.upload_resume(
             user_id=current_user.user_id,
             file_name=f"{fileName}.pdf",
             file_bytes=file_bytes,
@@ -64,14 +58,11 @@ async def upload_resume(
 @router.get("/{resume_id}")
 async def get_resume(
     resume_id: UUID,
-    db: Session = Depends(postgres_client.get_db),
+    resume_service: ResumeServiceDep,
     current_user: CurrentUser = Depends(get_current_user),
 ):
     try:
-        repository = ResumeRepository(db)
-        service = ResumeService(repository)
-
-        file_bytes, filename = await service.get_resume_bytes_for_download(
+        file_bytes, filename = await resume_service.get_resume_bytes_for_download(
             resume_id=resume_id, user_id=current_user.user_id
         )
 
@@ -102,14 +93,11 @@ async def get_resume(
 @router.delete("/{resume_id}")
 async def delete_resume(
     resume_id: UUID,
-    db: Session = Depends(postgres_client.get_db),
+    resume_service: ResumeServiceDep,
     current_user: CurrentUser = Depends(get_current_user),
 ):
     try:
-        repository = ResumeRepository(db)
-        service = ResumeService(repository)
-
-        deleted = await service.delete_resume(
+        deleted = await resume_service.delete_resume(
             resume_id=resume_id, user_id=current_user.user_id
         )
 

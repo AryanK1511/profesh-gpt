@@ -2,24 +2,18 @@ import asyncio
 from uuid import UUID
 
 from src.common.logger import logger
-from src.database.postgres.postgres_client import postgres_client
-from src.database.redis.redis_client import redis_client
-from src.modules.agent.core.ai_agent import AIAgent
-from src.modules.agent.repositories.agent_repository import AgentRepository
-from src.modules.agent.repositories.agent_status_repository import (
-    AgentStatusRepository,
-)
 from src.modules.agent.schemas.agent_schemas import (
     AgentCreateRequest,
     AgentProcessingCompleteEvent,
     AgentProcessingErrorEvent,
-    AgentProcessingProgressEvent,
     AgentProcessingStartEvent,
     AgentStatus,
 )
-from src.modules.agent.services.agent_crud_service import AgentCRUDService
-from src.modules.agent.services.agent_service import AgentService
-from src.modules.resume.repositories.resume_repository import ResumeRepository
+from src.workers.dependencies import (
+    create_agent_processing_service,
+    create_agent_service,
+    create_agent_status_repository,
+)
 from src.workers.main import celery_app
 
 
@@ -29,9 +23,7 @@ def run_agent_task(input_text: str):
         run_id = run_agent_task.request.id
         logger.info(f"Starting agent task for run_id: {run_id}")
 
-        ai_agent = AIAgent()
-        repository = AgentStatusRepository(redis_client=redis_client)
-        service = AgentService(ai_agent=ai_agent, repository=repository)
+        service = create_agent_processing_service()
 
         asyncio.run(
             service.run_agent_with_publishing(run_id=run_id, input_text=input_text)
@@ -54,12 +46,8 @@ def process_agent_creation_task(request_data: dict, user_id: str):
             f"Starting agent creation processing for user_id: {user_id}, task_id: {task_id}"
         )
 
-        db = next(postgres_client.get_db())
-        agent_repository = AgentRepository(db)
-        resume_repository = ResumeRepository(db)
-        status_repository = AgentStatusRepository(redis_client=redis_client)
-
-        service = AgentCRUDService(agent_repository, resume_repository)
+        service = create_agent_service()
+        status_repository = create_agent_status_repository()
         request = AgentCreateRequest(**request_data)
         agent = service.create_agent(request, user_id)
 
@@ -91,10 +79,8 @@ def process_agent_creation_task(request_data: dict, user_id: str):
         )
 
         try:
-            db = next(postgres_client.get_db())
-            agent_repository = AgentRepository(db)
-            status_repository = AgentStatusRepository(redis_client=redis_client)
-            service = AgentCRUDService(agent_repository, None)
+            service = create_agent_service()
+            status_repository = create_agent_status_repository()
 
             if "agent" in locals():
                 asyncio.run(
@@ -121,66 +107,28 @@ async def _process_agent_creation(
     agent_id: str,
     resume_id: str,
     task_id: str,
-    service: AgentCRUDService,
-    status_repository: AgentStatusRepository,
+    service,
+    status_repository,
 ):
     try:
         agent_uuid = UUID(agent_id)
-        resume_uuid = UUID(resume_id)
 
         start_event = AgentProcessingStartEvent(
             run_id=task_id,
-            agent_id=agent_id,
             task_id=task_id,
+            agent_id=agent_id,
             message="Starting agent processing",
         )
         await status_repository.publish_event(task_id, start_event)
 
+        # Wait 30 seconds
+        await asyncio.sleep(30)
+
+        # Update status to IN_PROGRESS
         service.update_agent_status(agent_uuid, AgentStatus.IN_PROGRESS)
 
-        progress_event = AgentProcessingProgressEvent(
-            run_id=task_id,
-            agent_id=agent_id,
-            progress="Validating resume",
-            status=AgentStatus.IN_PROGRESS,
-            message="Validating resume document",
-        )
-        await status_repository.publish_event(task_id, progress_event)
-        await asyncio.sleep(2)
-
-        resume = service.get_resume_by_id(resume_uuid)
-        if not resume:
-            raise ValueError("Resume not found")
-
-        progress_event = AgentProcessingProgressEvent(
-            run_id=task_id,
-            agent_id=agent_id,
-            progress="Processing resume content",
-            status=AgentStatus.IN_PROGRESS,
-            message="Processing resume content for embedding",
-        )
-        await status_repository.publish_event(task_id, progress_event)
-        await asyncio.sleep(3)
-
-        progress_event = AgentProcessingProgressEvent(
-            run_id=task_id,
-            agent_id=agent_id,
-            progress="Generating embeddings",
-            status=AgentStatus.IN_PROGRESS,
-            message="Generating embeddings for resume content",
-        )
-        await status_repository.publish_event(task_id, progress_event)
-        await asyncio.sleep(4)
-
-        progress_event = AgentProcessingProgressEvent(
-            run_id=task_id,
-            agent_id=agent_id,
-            progress="Finalizing agent setup",
-            status=AgentStatus.IN_PROGRESS,
-            message="Finalizing agent configuration",
-        )
-        await status_repository.publish_event(task_id, progress_event)
-        await asyncio.sleep(2)
+        # Wait another 30 seconds
+        await asyncio.sleep(30)
 
         service.update_agent_status(agent_uuid, AgentStatus.COMPLETED)
 
@@ -192,15 +140,20 @@ async def _process_agent_creation(
         )
         await status_repository.publish_event(task_id, complete_event)
 
+        logger.info(f"Successfully completed agent processing for agent_id: {agent_id}")
+
     except Exception as e:
-        logger.error(f"Error in agent creation processing: {e}")
-        await _handle_processing_error(
+        logger.error(f"Error during agent processing for agent_id {agent_id}: {e}")
+        service.update_agent_status(agent_uuid, AgentStatus.FAILED)
+
+        error_event = AgentProcessingErrorEvent(
+            run_id=task_id,
             agent_id=agent_id,
-            task_id=task_id,
             error_message=str(e),
-            service=service,
-            status_repository=status_repository,
+            status=AgentStatus.FAILED,
+            message="Agent processing failed",
         )
+        await status_repository.publish_event(task_id, error_event)
         raise
 
 
@@ -208,8 +161,8 @@ async def _handle_processing_error(
     agent_id: str,
     task_id: str,
     error_message: str,
-    service: AgentCRUDService,
-    status_repository: AgentStatusRepository,
+    service,
+    status_repository,
 ):
     try:
         agent_uuid = UUID(agent_id)
@@ -224,6 +177,8 @@ async def _handle_processing_error(
         )
         await status_repository.publish_event(task_id, error_event)
 
+        logger.info(f"Handled processing error for agent_id: {agent_id}")
+
     except Exception as e:
-        logger.error(f"Failed to handle processing error: {e}")
+        logger.error(f"Failed to handle processing error for agent_id {agent_id}: {e}")
         raise

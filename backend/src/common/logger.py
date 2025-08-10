@@ -4,7 +4,6 @@ import time
 
 from colorama import Fore, Style
 from colorama import init as colorama_init
-
 from src.common.config import settings
 
 colorama_init(autoreset=True)

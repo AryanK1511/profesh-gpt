@@ -1,11 +1,10 @@
 from celery import Celery
 from src.common.config import settings
-from src.common.logger import logger, setup_logging
+from src.common.logger import setup_logging
 
 
 def create_celery_app():
     setup_logging()
-    logger.info(f"REDIS_URL: {settings.REDIS_URL}")
 
     celery_app = Celery(
         "lorem-ipsum-api",

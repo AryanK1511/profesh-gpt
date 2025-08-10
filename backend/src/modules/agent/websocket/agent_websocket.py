@@ -3,10 +3,7 @@ from typing import Dict
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from src.common.logger import logger
-from src.database.redis.redis_client import redis_client
-from src.modules.agent.repositories.agent_status_repository import (
-    AgentStatusRepository,
-)
+from src.modules.agent.dependencies.agent_dependencies import AgentStatusRepo
 
 router = APIRouter(prefix="/agent", tags=["agent-websocket"])
 
@@ -14,11 +11,11 @@ active_connections: Dict[str, WebSocket] = {}
 
 
 @router.websocket("/stream/{run_id}")
-async def websocket_endpoint(websocket: WebSocket, run_id: str):
+async def websocket_endpoint(
+    websocket: WebSocket, run_id: str, repository: AgentStatusRepo
+):
     await websocket.accept()
     active_connections[run_id] = websocket
-
-    repository = AgentStatusRepository(redis_client=redis_client)
 
     try:
         logger.info(f"WebSocket connected for run_id: {run_id}")
@@ -73,11 +70,11 @@ async def websocket_endpoint(websocket: WebSocket, run_id: str):
 
 
 @router.websocket("/processing/{task_id}")
-async def agent_processing_websocket(websocket: WebSocket, task_id: str):
+async def agent_processing_websocket(
+    websocket: WebSocket, task_id: str, repository: AgentStatusRepo
+):
     await websocket.accept()
     active_connections[task_id] = websocket
-
-    repository = AgentStatusRepository(redis_client=redis_client)
 
     try:
         logger.info(f"Agent processing WebSocket connected for task_id: {task_id}")

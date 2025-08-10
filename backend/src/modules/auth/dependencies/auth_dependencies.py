@@ -1,5 +1,5 @@
 import base64
-from typing import Any, Dict
+from typing import Annotated, Any, Dict
 
 import requests
 from cryptography.hazmat.backends import default_backend
@@ -10,6 +10,7 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from src.common.config import settings
 from src.modules.auth.schemas.auth_schemas import CurrentUser
+from src.modules.auth.services.auth_service import AuthService
 
 
 class JWKSClient:
@@ -128,3 +129,10 @@ def get_current_user(
 ) -> CurrentUser:
     user_data = token_verifier.verify_token(token)
     return CurrentUser(**user_data)
+
+
+def get_auth_service() -> AuthService:
+    return AuthService()
+
+
+AuthServiceDep = Annotated[AuthService, Depends(get_auth_service)]

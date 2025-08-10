@@ -40,7 +40,6 @@ def register_routers(app: FastAPI) -> None:
         api_v1_router.include_router(router)
 
     app.include_router(api_v1_router)
-    logger.info("Registered all API routers with /api/v1 prefix")
 
     ws_v1_router = APIRouter(prefix="/ws/v1")
     websocket_routers = get_websocket_routers()
@@ -49,7 +48,6 @@ def register_routers(app: FastAPI) -> None:
         ws_v1_router.include_router(router)
 
     app.include_router(ws_v1_router)
-    logger.info("Registered all WebSocket routers with /ws/v1 prefix")
 
 
 def get_registered_routes() -> List[str]:

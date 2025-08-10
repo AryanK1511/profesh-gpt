@@ -2,21 +2,20 @@ from fastapi import APIRouter, Depends
 from src.common.logger import logger
 from src.common.utils.response import Response, Status
 
-from ..dependencies.auth_dependencies import get_current_user
-from ..services.auth_service import AuthenticationError, AuthService
+from ..dependencies.auth_dependencies import AuthServiceDep, get_current_user
+from ..services.auth_service import AuthenticationError
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 @router.get("/token")
-async def get_token():
+async def get_token(auth_service: AuthServiceDep):
     try:
-        auth_service = AuthService()
         token_data = auth_service.get_jwt_token()
 
         return Response.success(
             message="Token generated successfully",
-            data=token_data.model_dump(mode='json'),
+            data=token_data.model_dump(mode="json"),
             status_code=Status.OK,
         )
 

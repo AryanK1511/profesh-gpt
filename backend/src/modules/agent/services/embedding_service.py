@@ -342,6 +342,3 @@ class EmbeddingService:
         except Exception as e:
             logger.error(f"Failed to list collections: {e}")
             raise
-
-
-embedding_service = EmbeddingService()
