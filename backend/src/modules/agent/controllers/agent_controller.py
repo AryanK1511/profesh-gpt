@@ -15,6 +15,7 @@ from src.modules.agent.schemas.agent_schemas import (
 from src.modules.agent.services.agent_crud_service import AgentCRUDService
 from src.modules.auth.dependencies.auth_dependencies import get_current_user
 from src.modules.auth.schemas.auth_schemas import CurrentUser
+from src.modules.resume.repositories.resume_repository import ResumeRepository
 
 router = APIRouter(prefix="/agent", tags=["agent"])
 
@@ -27,7 +28,8 @@ async def create_agent(
 ):
     try:
         repository = AgentRepository(db)
-        service = AgentCRUDService(repository)
+        resume_repository = ResumeRepository(db)
+        service = AgentCRUDService(repository, resume_repository)
         logger.info(f"Current user: {current_user}")
         agent = service.create_agent(request, current_user.user_id)
 
@@ -67,7 +69,8 @@ async def get_user_agents(
 ):
     try:
         repository = AgentRepository(db)
-        service = AgentCRUDService(repository)
+        resume_repository = ResumeRepository(db)
+        service = AgentCRUDService(repository, resume_repository)
         agents = service.get_user_agents(current_user.user_id)
 
         return Response.success(
@@ -98,7 +101,8 @@ async def get_agent(
 ):
     try:
         repository = AgentRepository(db)
-        service = AgentCRUDService(repository)
+        resume_repository = ResumeRepository(db)
+        service = AgentCRUDService(repository, resume_repository)
         agent = service.get_agent_by_id(agent_id, current_user.user_id)
 
         if not agent:

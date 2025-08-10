@@ -11,14 +11,21 @@ from src.modules.resume.models.resume_model import Resume
 
 
 class ResumeRepository:
-    def __init__(self, db: Session, storage_client: StorageBucketClient | None = None):
+    def __init__(
+        self, db: Session, storage_client: StorageBucketClient = storage_bucket_client
+    ):
         self.db = db
-        self.storage_client: StorageBucketClient = (
-            storage_client or storage_bucket_client
-        )
+        self.storage_client: StorageBucketClient = storage_client
 
     def get_resume_by_id(self, resume_id: UUID) -> Optional[Resume]:
         return self.db.exec(select(Resume).where(Resume.resume_id == resume_id)).first()
+
+    def get_resume_by_name_and_user(
+        self, filename: str, user_id: str
+    ) -> Optional[Resume]:
+        return self.db.exec(
+            select(Resume).where(Resume.filename == filename, Resume.user_id == user_id)
+        ).first()
 
     def create_resume_record(self, resume_data: dict) -> Resume:
         resume = Resume(**resume_data)

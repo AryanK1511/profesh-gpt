@@ -5,16 +5,34 @@ from src.common.logger import logger
 from src.common.utils.exceptions import DatabaseError, ValidationError
 from src.modules.agent.repositories.agent_repository import AgentRepository
 from src.modules.agent.schemas.agent_schemas import AgentCreateRequest, AgentResponse
+from src.modules.resume.repositories.resume_repository import ResumeRepository
 
 
 class AgentCRUDService:
-    def __init__(self, repository: AgentRepository):
+    def __init__(
+        self, repository: AgentRepository, resume_repository: ResumeRepository
+    ):
         self.repository = repository
+        self.resume_repository = resume_repository
 
     def create_agent(self, request: AgentCreateRequest, user_id: str) -> AgentResponse:
         try:
             if not request.name.strip():
                 raise ValidationError("Agent name cannot be empty")
+
+            # Validate resume_id
+            try:
+                resume_uuid = UUID(request.resume_id)
+            except ValueError:
+                raise ValidationError("Invalid resume ID format")
+
+            # Check if resume exists and belongs to the user
+            resume = self.resume_repository.get_resume_by_id(resume_uuid)
+            if not resume:
+                raise ValidationError("Resume not found")
+
+            if resume.user_id != user_id:
+                raise ValidationError("Resume does not belong to the user")
 
             existing_agents = self.repository.get_agents_by_user_id(user_id)
             for agent in existing_agents:
@@ -32,14 +50,16 @@ class AgentCRUDService:
                 "custom_instructions": request.custom_instructions.strip()
                 if request.custom_instructions
                 else None,
-                "curr_resume_id": None,
+                "curr_resume_id": resume_uuid,
             }
 
             agent = self.repository.create_agent(agent_data)
 
             agent_response = AgentResponse.model_validate(agent)
 
-            logger.info(f"Successfully created agent '{agent.name}' for user {user_id}")
+            logger.info(
+                f"Successfully created agent '{agent.name}' for user {user_id} with resume {resume_uuid}"
+            )
             return agent_response
 
         except ValidationError:

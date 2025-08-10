@@ -65,7 +65,9 @@ class AgentCreateRequest(BaseModel):
     name: str = Field(..., min_length=1, max_length=255)
     description: Optional[str] = Field(None, max_length=1000)
     custom_instructions: Optional[str] = Field(None)
-    resume: Optional[str] = Field(None)
+    resume_id: str = Field(
+        ..., description="Resume ID is required when creating an agent"
+    )
 
 
 class AgentResponse(BaseModel):

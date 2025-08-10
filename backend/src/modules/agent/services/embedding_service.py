@@ -23,17 +23,6 @@ class EmbeddingService:
     async def embed_resume(
         self, user_id: str, agent_id: str = None, resume_id: str = None
     ) -> bool:
-        """
-        Coordinate the embedding process for a resume.
-
-        This service orchestrates the embedding workflow but delegates
-        specific responsibilities to other services.
-
-        Args:
-            user_id: The user ID
-            agent_id: The agent ID (if provided, resume_id will be fetched from agent)
-            resume_id: The resume ID (if provided directly, agent_id is optional)
-        """
         temp_file_path = None
         inserted_point_ids = []
         final_resume_id = None
