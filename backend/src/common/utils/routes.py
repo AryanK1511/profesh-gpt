@@ -5,6 +5,9 @@ from src.common.logger import logger
 from src.modules.agent.controllers.agent_controller import router as agent_router
 from src.modules.agent.websocket.agent_websocket import router as agent_websocket_router
 from src.modules.auth.controllers.auth_controller import router as auth_router
+from src.modules.resume.controllers.resume_controller import (
+    router as resume_router,
+)
 
 
 def get_all_routers() -> List[APIRouter]:
@@ -12,6 +15,7 @@ def get_all_routers() -> List[APIRouter]:
     try:
         routers.append(auth_router)
         routers.append(agent_router)
+        routers.append(resume_router)
     except ImportError as e:
         logger.warning(f"Could not import routers: {e}")
 
