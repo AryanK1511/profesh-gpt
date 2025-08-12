@@ -121,8 +121,6 @@ async def _process_agent_creation(
 
         await _publish_start_event(task_id, agent_id, status_repository)
 
-        await asyncio.sleep(30)
-
         await _publish_progress_event(
             task_id,
             agent_id,
@@ -130,6 +128,8 @@ async def _process_agent_creation(
             "Agent processing started",
             status_repository,
         )
+
+        await asyncio.sleep(20)
 
         service.update_agent_status(agent_uuid, AgentStatus.IN_PROGRESS)
         await _publish_progress_event(
@@ -140,15 +140,7 @@ async def _process_agent_creation(
             status_repository,
         )
 
-        await asyncio.sleep(30)
-
-        await _publish_progress_event(
-            task_id,
-            agent_id,
-            AgentStatus.IN_PROGRESS,
-            "Agent processing nearly complete",
-            status_repository,
-        )
+        await asyncio.sleep(20)
 
         service.update_agent_status(agent_uuid, AgentStatus.COMPLETED)
         await _publish_completion_event(task_id, agent_id, status_repository)
