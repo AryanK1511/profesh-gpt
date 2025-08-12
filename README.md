@@ -1,6 +1,6 @@
 # ProfeshGPT
 
-Replace your portfolio site with a portfolio ChatGPT 🤖🚀
+Replace your portfolio site with a portfolio ChatGPT 🤖🚀.
 
 ## Author
 
